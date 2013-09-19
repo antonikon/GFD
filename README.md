@@ -1,0 +1,4 @@
+GFD
+===
+
+Game Format Date
