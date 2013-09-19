@@ -8,40 +8,41 @@ Game Format Date
 
 Пример использования:
 
-содержимое filename.gfd
-integer = 2432.234;
-string = "Hello, world!";
-bool = true;
-array = [5,2,6,3,5];
-array1 = ["H","e","l","l","o"];
-array3 = [true,false];
-array4 = [5,"World", true];
-object = {
-  integer = 5345.23;
-  objectInObject = {
-    string = "Text";
-  };
-};
+содержимое filename.gfd<br>
+integer = 2432.234;<br>
+string = "Hello, world!";<br>
+bool = true;<br>
+array = [5,2,6,3,5];<br>
+array1 = ["H","e","l","l","o"];<br>
+array3 = [true,false];<br>
+array4 = [5,"World", true];<br>
+object = {<br>
+  integer = 5345.23;<br>
+  objectInObject = {<br>
+    string = "Text";<br>
+  };<br>
+};<br>
 
-#include "mainwindow.h"
-#include "gfd.h"
+\#include "mainwindow.h"<br>
+\#include "gfd.h"<br>
 
-int main(int argc, char *argv[])
-{
-  GFD config("filename.gfd") //открытие файла
+int main(int argc, char *argv[])<br>
+{<br>
+  GFD config("filename.gfd") //открытие файла<br>
+  <br>
+  // берем параметры<br>
+  double integer = config.getValue("integer")->getIntValue();<br>
+  QString str = config.getValue("string")->getStrValue();<br>
+  bool b = config.getValue("array4")->getArrayValue(2)->getBoolValue();<br>
+  double int1 = config.getValue("object")->getValue("integer")->getIntValue();<br>
+  QString txt = config.getValue("object")->getValue("objectInObject")->getValue("string")->getStrValue()<br>
+  <br>
   
-  // берем параметры
-  double integer = config.getValue("integer")->getIntValue();
-  QString str = config.getValue("string")->getStrValue();
-  bool b = config.getValue("array4")->getArrayValue(2)->getBoolValue();
-  double int1 = config.getValue("object")->getValue("integer")->getIntValue();
-  QString txt = config.getValue("object")->getValue("objectInObject")->getValue("string")->getStrValue();
-  
-  qDebug() << integer << str << b << int1 << txt;
-  
-	return 0;
-}
-
-//////
-Получим:
-2432.234 Hello, world! true 5345.23 Text
+  qDebug() << integer << str << b << int1 << txt;<br>
+  <br>
+  return 0;<br>
+}<br>
+<br>
+//////<br>
+Получим:<br>
+2432.234 Hello, world! true 5345.23 Text<br>
