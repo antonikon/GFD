@@ -31,11 +31,11 @@ int main(int argc, char *argv[])<br>
   GFD config("filename.gfd") //открытие файла<br>
   <br>
   // берем параметры<br>
-  double integer = config.getValue("integer")->getIntValue();<br>
-  QString str = config.getValue("string")->getStrValue();<br>
-  bool b = config.getValue("array4")->getArrayValue(2)->getBoolValue();<br>
-  double int1 = config.getValue("object")->getValue("integer")->getIntValue();<br>
-  QString txt = config.getValue("object")->getValue("objectInObject")->getValue("string")->getStrValue()<br>
+  double integer = config["integer"];<br>
+  QString str = config["string"];<br>
+  bool b = config["array4"][2];<br>
+  double int1 = config["object"]["integer"];<br>
+  QString txt = config["object"]["objectInObject"]["string"]<br>
   <br>
   
   qDebug() << integer << str << b << int1 << txt;<br>
