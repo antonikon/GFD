@@ -24,22 +24,8 @@ bool GFD::parsing(QString &data, GFDObject *object)
 
 
 	while (index != -1) {
-		int openToken = 0;
-		bool openText = false;
 
-		index = -1;
-		for (int q = 0; q < data.size(); q++) {
-			if (data[q] == '{') {
-				openToken++;
-			} else if (data[q] == '}') {
-				openToken--;
-			} else if (data[q] == '"') {
-				openText = !openText;
-			} else if (data[q] == ';' & !openText & openToken == 0) {
-				index = q;
-				break;
-			}
-		}
+		index = indexOfToken(data);
 		if (index != -1) {
 			GFDVar *var = new GFDVar;
 			QString line;
@@ -85,7 +71,16 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 		var->setType(GFD_VAR_TYPE_ARRAY);
 		endIndex = text.lastIndexOf(']');
 		text = text.mid(1, endIndex - 1);
-		QStringList list = text.split(',');
+
+		QStringList list;
+		int index = indexOfToken(text);
+
+		while (index != - 1) {
+			list.append(text.left(index));
+			text.remove(0,index + 1);
+			index = indexOfToken(text);
+		}
+
 		for (int q = 0; q < list.size(); q++) {
 			GFDVar *newVar = new GFDVar;
 			status = parsValue(newVar, list[q]);
@@ -134,16 +129,44 @@ QString GFD::formatting(const QString &text)
 	for (int q = 0; q < fText.size(); q++) {
 		if (fText[q] == '"') {
 			textOpen = !textOpen;
-		} else if (fText[q] == ' ' & !textOpen) {
+		} else if (( fText[q] == ' ') & (!textOpen)) {
 			fText.remove(q,1);
 			q--;
-		} else if (fText[q] == '	' & !textOpen) {
+		} else if ((fText[q] == '	') & (!textOpen)) {
 			fText.remove(q,1);
 			q--;
-		} else if (fText[q] == '\n' & !textOpen) {
+		} else if ((fText[q] == '\n') & (!textOpen)) {
 			fText.remove(q,1);
 			q--;
 		}
 	}
 	return fText;
+}
+
+int GFD::indexOfToken(const QString &text)
+{
+	int index = -1;
+	int openToken = 0;
+	bool openText = false;
+
+	for (int q = 0; q < text.size(); q++) {
+		if (text[q] == '{') {
+			openToken++;
+		} else if (text[q] == '[') {
+			openToken++;
+		} else if (text[q] == '}') {
+			openToken--;
+		} else if (text[q] == ']') {
+			openToken--;
+		} else if (text[q] == '"') {
+			openText = !openText;
+		} else if ((text[q] == ';') & (!openText) & (openToken == 0)) {
+			index = q;
+			break;
+		}
+	}
+	if ((index == -1) & (text.size() > 0)) {
+		index = text.size() - 1;
+	}
+	return index;
 }

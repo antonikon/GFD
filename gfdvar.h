@@ -18,6 +18,7 @@ class GFDVar
 {
 public:
 	GFDVar();
+	~GFDVar();
 	template <typename T>
 	GFDVar(GFD_VAR_TYPE type, const QString &name, T value);
 	void setName(const QString &name) {
@@ -28,15 +29,27 @@ public:
 	}
 	void setValue(const QString &value) {
 		_strValue = value;
+		_intValue = 0;
+		_boolValue = false;
+		_objectValue = nullptr;
 	}
 	void setValue(double value) {
 		_intValue = value;
+		_strValue = QString("%1").arg(value);
+		_boolValue = false;
+		_objectValue = nullptr;
 	}
 	void setValue(bool value) {
 		_boolValue = value;
+		_intValue = value;
+		_strValue = QString("%1").arg(value);
+		_objectValue = nullptr;
 	}
 	void setValue(GFDObject *value) {
-		_valueObject = value;
+		_strValue = "";
+		_intValue = 0;
+		_boolValue = false;
+		_objectValue = value;
 	}
 	void addArrayValue(GFDVar *var) {
 		_arrayValue.append(var);
@@ -47,22 +60,28 @@ public:
 	GFD_VAR_TYPE getType() {
 		return _type;
 	}
-	QString getStrValue() {
+	template <typename T>
+	T getValue();
+	operator QString() {
 		return _strValue;
 	}
-	double getIntValue() {
+	operator double() {
 		return _intValue;
 	}
-	bool getBoolValue() {
+	operator float() {
+		return _intValue;
+	}
+	operator int() {
+		return _intValue;
+	}
+	operator bool() {
 		return _boolValue;
 	}
-	GFDVar *getArrayValue(size_t index) {
-		return _arrayValue[index];
+	GFDVar operator [](int index) {
+		return *_arrayValue[index];
 	}
-	GFDObject *getObjectValue() {
-		return _valueObject;
-	}
-
+	GFDVar operator [](const char *name);
+	GFDVar operator [](QString name);
 private:
 	QString _name;
 	GFD_VAR_TYPE _type;
@@ -70,5 +89,5 @@ private:
 	double _intValue;
 	bool _boolValue;
 	QVector <GFDVar*> _arrayValue;
-	GFDObject *_valueObject;
+	GFDObject *_objectValue;
 };
