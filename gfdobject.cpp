@@ -7,12 +7,12 @@ GFDObject::GFDObject()
 GFDObject::~GFDObject()
 {
 
-	for (int q = 0; q < _varList.size(); q++) {
+	/*for (int q = 0; q < _varList.size(); q++) {
 		delete _varList[q];
-	}
+	}*/
 }
 
-GFDVar GFDObject::operator[](const QString &name)
+GFDVar &GFDObject::operator[](const QString &name)
 {
 	for (int q = 0; q < _varList.size(); q++) {
 		if (_varList[q]->getName() == name) {
@@ -21,7 +21,7 @@ GFDVar GFDObject::operator[](const QString &name)
 	}
 }
 
-GFDVar GFDObject::getVar(const QString &name)
+GFDVar &GFDObject::getVar(const QString &name)
 {
 	for (int q = 0; q < _varList.size(); q++) {
 		if (_varList[q]->getName() == name) {

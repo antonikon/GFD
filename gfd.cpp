@@ -1,7 +1,8 @@
 #include "gfd.h"
 
 GFD::GFD(const QString &name, QObject *parent) :
-	QObject(parent)
+	QObject(parent),
+	_fileName(name)
 {
 	QFile file(name);
 	QString data;
@@ -18,14 +19,128 @@ GFD::GFD(const QString &name, QObject *parent) :
 
 }
 
+GFD::GFD(QObject *parent):
+	QObject(parent)
+{
+}
+
+void GFD::save(QString fileName)
+{
+	if (fileName == "") {
+		fileName = _fileName;
+	}
+
+	QFile file(fileName);
+	QString data = "";
+
+	file.open(QFile::WriteOnly);
+	GFDVar *var = toVar();
+
+	serializeObject(data, var);
+	file.write(data.toLocal8Bit());
+	file.close();
+	delete var;
+
+}
+
+void GFD::serializeVar(QString &data, GFDVar *var, bool inArray)
+{
+	if (!inArray) {
+		switch (var->getType()) {
+			case GFD_VAR_TYPE_STRING: {
+				data.append(QString("%1 = \"%2\";\n").arg(var->getName()).arg(var->toQString()));
+				break;
+			}
+			case GFD_VAR_TYPE_INT: {
+				data.append(QString("%1 = %2;\n").arg(var->getName()).arg(var->toDouble()));
+				break;
+			}
+			case GFD_VAR_TYPE_BOOL: {
+				QString boolStr;
+				if (var->toBool()) {
+					boolStr = "true";
+				} else {
+					boolStr = "false";
+				}
+				data.append(QString("%1 = %2;\n").arg(var->getName()).arg(boolStr));
+				break;
+			}
+			case GFD_VAR_TYPE_ARRAY: {
+				serializeArray(data, var);
+				break;
+			}
+			case GFD_VAR_TYPE_OBJECT: {
+				serializeObject(data, var);
+				break;
+			}
+		}
+	} else {
+		switch (var->getType()) {
+			case GFD_VAR_TYPE_STRING: {
+				data.append(QString("\"%1\"; ").arg(var->toQString()));
+				break;
+			}
+			case GFD_VAR_TYPE_INT: {
+				data.append(QString("%1; ").arg(var->toDouble()));
+				break;
+			}
+			case GFD_VAR_TYPE_BOOL: {
+				QString boolStr;
+				if (var->toBool()) {
+					boolStr = "true";
+				} else {
+					boolStr = "false";
+				}
+				data.append(QString("%1; ").arg(boolStr));
+				break;
+			}
+			case GFD_VAR_TYPE_ARRAY: {
+				serializeArray(data, var);
+				data.append(" ");
+				break;
+			}
+			case GFD_VAR_TYPE_OBJECT: {
+				data.append("\n");
+				serializeObject(data, var);
+				data.append("\n");
+				break;
+			}
+		}
+	}
+}
+
+void GFD::serializeObject(QString &data, GFDVar *var)
+{
+	data.append(QString("%1 = {\n").arg(var->getName()));
+	for (size_t q = 0; q < var->toObject()->getSize(); q++) {
+		serializeVar(data, var->toObject()->getVar(q));
+	}
+	data.append("};\n");
+}
+
+void GFD::serializeArray(QString &data, GFDVar *var)
+{
+	data.append(QString("%1 = ["));
+	for (size_t q = 0; q < var->getArraySize(); q++) {
+		serializeVar(data, var->getArrayVar(q), true);
+	}
+	data.append("];\n");
+}
+
+GFDVar *GFD::toVar()
+{
+	GFDVar *var = new GFDVar;
+	var->setName("main");
+	var->setValue(this);
+	return var;
+}
+
 bool GFD::parsing(QString &data, GFDObject *object)
 {
-	int index = 0;
+	int index = indexOfToken(data);
 
 
 	while (index != -1) {
-
-		index = indexOfToken(data);
 		if (index != -1) {
 			GFDVar *var = new GFDVar;
 			QString line;
@@ -43,12 +158,9 @@ bool GFD::parsing(QString &data, GFDObject *object)
 			status = parsValue(var, line);
 			if (status) {
 				object->addVar(var);
-				continue;
 			}
-		} else {
-			continue;
 		}
-		return false;
+		index = indexOfToken(data);
 	}
 	return true;
 }
@@ -58,7 +170,6 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 	if (text[0] == '"') {
 		int endIndex;
 
-		var->setType(GFD_VAR_TYPE_STRING);
 		endIndex = text.lastIndexOf('"');
 		text = text.mid(1, endIndex - 1);
 		var->setValue(text);
@@ -68,7 +179,6 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 		int endIndex;
 		bool status;
 
-		var->setType(GFD_VAR_TYPE_ARRAY);
 		endIndex = text.lastIndexOf(']');
 		text = text.mid(1, endIndex - 1);
 
@@ -82,8 +192,8 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 		}
 
 		for (int q = 0; q < list.size(); q++) {
-			GFDVar *newVar = new GFDVar;
-			status = parsValue(newVar, list[q]);
+			GFDVar newVar;
+			status = parsValue(&newVar, list[q]);
 			if (!status) return false;
 			var->addArrayValue(newVar);
 		}
@@ -91,7 +201,6 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 	} else if (text[0] == '{') {
 		int endIndex;
 
-		var->setType(GFD_VAR_TYPE_OBJECT);
 		endIndex = text.lastIndexOf('}');
 		text = text.mid(1, endIndex - 1);
 		GFDObject *newObject = new GFDObject;
@@ -99,12 +208,10 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 		var->setValue(newObject);
 		return true;
 	}else if (text == "true") {
-		var->setType(GFD_VAR_TYPE_BOOL);
 		var->setValue(true);
 		qDebug() << "Bool" << "true";
 		return true;
 	} else if (text == "false") {
-		var->setType(GFD_VAR_TYPE_BOOL);
 		var->setValue(false);
 		qDebug() << "Bool" << "false";
 		return true;
@@ -113,7 +220,6 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 		double value = text.toDouble(&status);
 
 		if (status) {
-			var->setType(GFD_VAR_TYPE_INT);
 			var->setValue(value);
 			qDebug() << "Int" << value;
 			return true;
@@ -166,7 +272,7 @@ int GFD::indexOfToken(const QString &text)
 		}
 	}
 	if ((index == -1) & (text.size() > 0)) {
-		index = text.size() - 1;
+		index = text.size();
 	}
 	return index;
 }
