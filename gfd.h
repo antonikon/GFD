@@ -23,7 +23,7 @@ private:
 	bool parsValue(GFDVar *var, QString &text);
 	QString formatting(const QString &text);
 	int indexOfToken(const QString &text);
-	void serializeObject(QString &data, GFDVar *var);
+	void serializeObject(QString &data, GFDVar *var, bool isMain = false);
 	void serializeVar(QString &data, GFDVar *var, bool inArray = false);
 	void serializeArray(QString &data, GFDVar *var);
 	GFDVar *toVar();

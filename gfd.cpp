@@ -36,7 +36,7 @@ void GFD::save(QString fileName)
 	file.open(QFile::WriteOnly);
 	GFDVar *var = toVar();
 
-	serializeObject(data, var);
+	serializeObject(data, var, true);
 	file.write(data.toLocal8Bit());
 	file.close();
 	delete var;
@@ -109,13 +109,13 @@ void GFD::serializeVar(QString &data, GFDVar *var, bool inArray)
 	}
 }
 
-void GFD::serializeObject(QString &data, GFDVar *var)
+void GFD::serializeObject(QString &data, GFDVar *var, bool isMain)
 {
-	data.append(QString("%1 = {\n").arg(var->getName()));
+	if (!isMain) data.append(QString("%1 = {\n").arg(var->getName()));
 	for (size_t q = 0; q < var->toObject()->getSize(); q++) {
 		serializeVar(data, var->toObject()->getVar(q));
 	}
-	data.append("};\n");
+	if (!isMain) data.append("};\n");
 }
 
 void GFD::serializeArray(QString &data, GFDVar *var)
