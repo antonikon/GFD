@@ -6,10 +6,10 @@ GFDObject::GFDObject()
 
 GFDObject::~GFDObject()
 {
-
-	/*for (int q = 0; q < _varList.size(); q++) {
+	for (int q = 0; q < _varList.size(); q++) {
 		delete _varList[q];
-	}*/
+	}
+	_varList.clear();
 }
 
 GFDVar &GFDObject::operator[](const QString &name)

@@ -1,23 +1,16 @@
 #pragma once
 
-#include <QObject>
 #include <QtCore>
 
 #include "gfdobject.h"
 #include "gfdvar.h"
 
-class GFD : public QObject, public GFDObject
+class GFD : public GFDObject
 {
-	Q_OBJECT
 public:
-	GFD(const QString &name, QObject *parent = 0);
-	GFD(QObject *parent = 0);
+	GFD(const QString &name);
+	GFD();
 	void save(QString fileName = "");
-signals:
-	
-public slots:
-	
-
 private:
 	bool parsing(QString &data, GFDObject *object);
 	bool parsValue(GFDVar *var, QString &text);

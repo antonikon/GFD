@@ -1,7 +1,6 @@
 #include "gfd.h"
 
-GFD::GFD(const QString &name, QObject *parent) :
-	QObject(parent),
+GFD::GFD(const QString &name) :
 	_fileName(name)
 {
 	QFile file(name);
@@ -10,17 +9,16 @@ GFD::GFD(const QString &name, QObject *parent) :
 	file.open(QFile::ReadOnly);
 	data = file.readAll();
 	file.close();
+	data = formatting(data);
 	bool status = parsing(data,this);
 	if (status) {
-		qDebug() << "Success";
+		//qDebug() << "Success";
 	} else {
-		qDebug() << "Fail";
+		//qDebug() << "Fail";
 	}
-
 }
 
-GFD::GFD(QObject *parent):
-	QObject(parent)
+GFD::GFD()
 {
 }
 
@@ -35,7 +33,6 @@ void GFD::save(QString fileName)
 
 	file.open(QFile::WriteOnly);
 	GFDVar *var = toVar();
-
 	serializeObject(data, var, true);
 	file.write(data.toLocal8Bit());
 	file.close();
@@ -150,7 +147,6 @@ bool GFD::parsing(QString &data, GFDObject *object)
 
 			line = data.left(index);
 			data.remove(0,index + 1);
-			line = formatting(line);
 			index1 = line.indexOf('=');
 			varName = line.left(index1);
 			var->setName(varName);
@@ -173,7 +169,6 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 		endIndex = text.lastIndexOf('"');
 		text = text.mid(1, endIndex - 1);
 		var->setValue(text);
-		qDebug() << "String" << text;
 		return true;
 	} else if (text[0] == '['){
 		int endIndex;
@@ -209,11 +204,9 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 		return true;
 	}else if (text == "true") {
 		var->setValue(true);
-		qDebug() << "Bool" << "true";
 		return true;
 	} else if (text == "false") {
 		var->setValue(false);
-		qDebug() << "Bool" << "false";
 		return true;
 	} else {
 		bool status;
@@ -221,7 +214,6 @@ bool GFD::parsValue(GFDVar *var, QString &text)
 
 		if (status) {
 			var->setValue(value);
-			qDebug() << "Int" << value;
 			return true;
 		}
 	}
