@@ -2,128 +2,67 @@
 
 #include <QtCore>
 
-#include "gfdobject.h"
-
-class GFDObject;
-
-enum GFD_VAR_TYPE {
+enum GFD_VAR_TYPE
+{
 	GFD_VAR_TYPE_INT = 0,
-	GFD_VAR_TYPE_STRING = 1,
-	GFD_VAR_TYPE_BOOL = 2,
-	GFD_VAR_TYPE_ARRAY = 3,
-	GFD_VAR_TYPE_OBJECT = 4
+	GFD_VAR_TYPE_DOUBLE = 1,
+	GFD_VAR_TYPE_STRING = 2,
+	GFD_VAR_TYPE_BOOL = 3,
+	GFD_VAR_TYPE_ARRAY = 4,
+	GFD_VAR_TYPE_OBJECT = 5
 };
+
 
 class GFDVar
 {
 public:
+	GFDVar(const QString &name, GFD_VAR_TYPE type);
+	GFDVar(GFDVar *var);
 	GFDVar();
-	~GFDVar();
-	template <typename T>
-	GFDVar(GFD_VAR_TYPE type, const QString &name, T value);
+	GFD_VAR_TYPE getType() const {
+		return _type;
+	}
+	QString getName() const {
+		return _name;
+	}
+	void setType(GFD_VAR_TYPE type) {
+		_type = type;
+	}
 	void setName(const QString &name) {
 		_name = name;
 	}
-	void setValue(const char *value) {
-		_type = GFD_VAR_TYPE_STRING;
-		_strValue = QString("%1").arg(value);
-		_intValue = 0;
-		_boolValue = false;
-		_objectValue = nullptr;
+	virtual void setValue(bool value) {Q_UNUSED(value)}
+	virtual void setValue(int value) {Q_UNUSED(value)}
+	virtual void setValue(double value) {Q_UNUSED(value)}
+	virtual void setValue(const QString &value) {Q_UNUSED(value)}
+	virtual void addValue(GFDVar *value) {Q_UNUSED(value)}
+
+	virtual int toInt() const {
+		return 0;
 	}
-	void setValue(const QString &value) {
-		_type = GFD_VAR_TYPE_STRING;
-		_strValue = value;
-		_intValue = 0;
-		_boolValue = false;
-		_objectValue = nullptr;
+	virtual double toDouble() const {
+		return 0;
 	}
-	void setValue(double value) {
-		_type = GFD_VAR_TYPE_INT;
-		_intValue = value;
-		_strValue = QString("%1").arg(value);
-		_boolValue = false;
-		_objectValue = nullptr;
+	virtual bool toBool() const {
+		return false;
 	}
-	void setValue(int value) {
-		_type = GFD_VAR_TYPE_INT;
-		_intValue = value;
-		_strValue = QString("%1").arg(value);
-		_boolValue = false;
-		_objectValue = nullptr;
+	virtual QString toQString() const {
+		return "";
 	}
-	void setValue(bool value) {
-		_type = GFD_VAR_TYPE_BOOL;
-		_boolValue = value;
-		_intValue = value;
-		_strValue = QString("%1").arg(value);
-		_objectValue = nullptr;
+	virtual GFDVar &operator [] (int index) {
+		Q_UNUSED(index);
+		return *this;
 	}
-	void setValue(GFDObject *value) {
-		_type = GFD_VAR_TYPE_OBJECT;
-		_strValue = "";
-		_intValue = 0;
-		_boolValue = false;
-		_objectValue = value;
+	virtual GFDVar &operator [] (const char *name) {
+		Q_UNUSED(name);
+		return *this;
 	}
-	void addArrayValue(GFDVar var) {
-		_type = GFD_VAR_TYPE_ARRAY;
-		_arrayValue.append(var);
-	}
-	QString getName() {
-		return _name;
-	}
-	GFD_VAR_TYPE getType() {
-		return _type;
-	}
-	size_t getArraySize() {
-		return _arrayValue.size();
-	}
-	operator QString() {
-		return _strValue;
-	}
-	operator const char*() {
-		return _strValue.toLocal8Bit().data();
-	}
-	operator double() {
-		return _intValue;
-	}
-	operator float() {
-		return _intValue;
-	}
-	operator int() {
-		return _intValue;
-	}
-	operator bool() {
-		return _boolValue;
-	}
-	QString toQString() {
-		return _strValue;
-	}
-	double toDouble() {
-		return _intValue;
-	}
-	bool toBool() {
-		return _boolValue;
-	}
-	GFDObject *toObject() {
-		return _objectValue;
-	}
-	GFDVar &operator [](int index) {
-		return _arrayValue[index];
-	}
-	GFDVar &operator [](const char *name);
-	GFDVar &operator [](QString name);
-	GFDVar *getArrayVar(size_t index) {
-		return &_arrayValue[index];
+	virtual GFDVar &operator [] (const QString &name) {
+		Q_UNUSED(name);
+		return *this;
 	}
 
 private:
-	QString _name;
 	GFD_VAR_TYPE _type;
-	QString _strValue;
-	double _intValue;
-	bool _boolValue;
-	QVector <GFDVar> _arrayValue;
-	GFDObject *_objectValue;
+	QString _name;
 };

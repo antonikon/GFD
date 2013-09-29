@@ -1,32 +1,19 @@
 #include "gfdvar.h"
 
-template <typename T>
-GFDVar::GFDVar(GFD_VAR_TYPE type, const QString &name, T value):
+GFDVar::GFDVar(const QString &name, GFD_VAR_TYPE type):
 	_type(type),
 	_name(name)
 {
-	setValue(value);
-
 }
 
-GFDVar::GFDVar()
+GFDVar::GFDVar(GFDVar *var):
+	_type(var->getType()),
+	_name(var->getName())
 {
 
 }
 
-GFDVar::~GFDVar()
+GFDVar::GFDVar():
+	_name("")
 {
-	if (_type == GFD_VAR_TYPE_OBJECT) {
-		delete _objectValue;
-	}
-}
-
-GFDVar &GFDVar::operator [](const char *name)
-{
-	return _objectValue->getVar(name);
-}
-
-GFDVar &GFDVar::operator [](QString name)
-{
-	return _objectValue->getVar(name);
 }
