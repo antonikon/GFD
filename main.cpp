@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	GFD config("config.gfd");
-	qDebug() << config["objarray"][1]["name"].toQString();
+	GFD config("config1.gfd");
+	config.saveFile("config.gfd");
 	return a.exec();
 }

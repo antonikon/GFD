@@ -12,7 +12,7 @@ public:
 	virtual bool toBool() const{
 		return _boolValue;
 	}
-
+	virtual QString toText(bool inArray = false) const;
 private:
 	bool _boolValue;
 };

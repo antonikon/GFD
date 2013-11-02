@@ -12,6 +12,7 @@ public:
 	virtual QString toQString() const {
 		return _stringValue;
 	}
+	virtual QString toText(bool inArray = false) const;
 private:
 	QString _stringValue;
 };

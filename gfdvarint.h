@@ -21,6 +21,7 @@ public:
 	virtual QString toQString() const {
 		return QString("%1").arg(_intValue);
 	}
+	virtual QString toText(bool inArray = false) const;
 private:
 	int _intValue;
 };

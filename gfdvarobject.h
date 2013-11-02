@@ -17,6 +17,8 @@ public:
 	virtual void addValue(GFDVar *value) {
 		_varsList.append(value);
 	}
+	virtual QString toText(bool inArray = false) const;
+	QString toTextMain() const;
 private:
 	GFDVar &getVar(const QString &name);
 private:

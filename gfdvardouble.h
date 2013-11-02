@@ -21,7 +21,7 @@ public:
 	virtual void setValue(int value) {
 		_doubleValue = value;
 	}
-
+	virtual QString toText(bool inArray = false) const;
 private:
 	double _doubleValue;
 };

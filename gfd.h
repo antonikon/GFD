@@ -16,6 +16,7 @@ public:
 	GFD(const QString &filename);
 	GFD();
 	void openFile(const QString &filename);
+	void saveFile(QString name = "");
 	bool parse(QString &data, GFDVarObject *object);
 private:
 	QString readFile();

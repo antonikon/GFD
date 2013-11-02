@@ -36,7 +36,7 @@ public:
 	virtual void setValue(double value) {Q_UNUSED(value)}
 	virtual void setValue(const QString &value) {Q_UNUSED(value)}
 	virtual void addValue(GFDVar *value) {Q_UNUSED(value)}
-
+	virtual QString toText(bool inArray = false) const {Q_UNUSED(inArray) return QString();}
 	virtual int toInt() const {
 		return 0;
 	}
@@ -61,7 +61,6 @@ public:
 		Q_UNUSED(name);
 		return *this;
 	}
-
 private:
 	GFD_VAR_TYPE _type;
 	QString _name;

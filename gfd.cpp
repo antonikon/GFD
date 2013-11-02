@@ -19,6 +19,19 @@ void GFD::openFile(const QString &filename)
 	parse(data,this);
 }
 
+void GFD::saveFile(QString name)
+{
+	if (name == "") {
+		name = _fileName;
+	}
+	QString text = toTextMain();
+	QFile file(name);
+	file.open(QFile::WriteOnly);
+	file.write(text.toLocal8Bit());
+	file.close();
+
+}
+
 bool GFD::parse(QString &data, GFDVarObject *object)
 {
 	formatting(data);
@@ -115,7 +128,6 @@ bool GFD::parseVar(GFDVar *&var, QString &data)
 		data = data.mid(1, lastTokenIndex - 1);
 		var = new GFDVarString();
 		var->setValue(data);
-		qDebug() << QString("String %1").arg(data);
 		return true;
 	} else if (data[0] == '[') {
 		int lastTokenIndex = data.lastIndexOf(']');
@@ -142,12 +154,10 @@ bool GFD::parseVar(GFDVar *&var, QString &data)
 	} else if (data == "true") {
 		var = new GFDVarBool();
 		var->setValue(true);
-		qDebug() << QString("Bool %1").arg(true);
 		return true;
 	} else if (data == "false") {
 		var = new GFDVarBool();
 		var->setValue(false);
-		qDebug() << QString("Bool %1").arg(false);
 		return true;
 	} else {
 		bool status;
@@ -157,11 +167,9 @@ bool GFD::parseVar(GFDVar *&var, QString &data)
 			if (doubleValue == intValue) {
 				var = new GFDVarInt();
 				var->setValue(intValue);
-				qDebug() << QString("Int %1").arg(intValue);
 			} else {
 				var = new GFDVarDouble();
 				var->setValue(doubleValue);
-				qDebug() << QString("Double %1").arg(doubleValue);
 			}
 			return true;
 		}
